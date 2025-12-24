@@ -247,10 +247,16 @@
                         // Make the opponent's response (part of the solution sequence)
                         if (currentMoveIndex < solutionMoves.length) {
                             var responseMove = solutionMoves[currentMoveIndex];
-                            game.move({
+                            var blackMove = game.move({
                                 from: responseMove.substring(0, 2),
                                 to: responseMove.substring(2, 4)
                             });
+
+                            if (blackMove === null) {
+                                console.error('Black response move failed:', responseMove);
+                                return;
+                            }
+
                             board.position(game.fen());
                             currentMoveIndex++;
 
