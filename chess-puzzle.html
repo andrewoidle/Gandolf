@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christmas Clue - Chess Puzzle</title>
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 600px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-top: 0;
+        }
+
+        .puzzle-info {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+            color: #555;
+        }
+
+        #board {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+        }
+
+        .clue-container {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: #4CAF50;
+            border-radius: 10px;
+            text-align: center;
+            animation: fadeIn 1s;
+        }
+
+        .clue-container.show {
+            display: block;
+        }
+
+        .clue-text {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .success-message {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .reset-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .reset-btn:hover {
+            background: #5568d3;
+        }
+
+        .hint {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎄 Christmas Clue Quest 🎄</h1>
+        <div class="puzzle-info">
+            <strong>White to move and win!</strong>
+        </div>
+        <div id="board"></div>
+        <div class="hint">Find the winning move...</div>
+        <button class="reset-btn" onclick="resetPuzzle()">Reset Puzzle</button>
+
+        <div id="clueContainer" class="clue-container">
+            <div class="success-message">🎉 Puzzle Solved! 🎉</div>
+            <div class="clue-text">Your next clue is: Look where the books sleep at night!</div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+
+    <script>
+        // Initialize the game
+        var game = new Chess();
+        var board = null;
+
+        // Intermediate chess puzzle: White to move and win (Fork tactic with Knight)
+        // This is a position where White can win material with a knight fork
+        var puzzlePosition = 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R w KQkq - 0 1';
+        var solutionMoves = ['f3g5', 'c6a5', 'g5e6']; // Knight to g5 (threatens f7 and attacks queen), then Ne6 winning the queen
+        var currentMoveIndex = 0;
+
+        // Set up the puzzle position
+        game.load(puzzlePosition);
+
+        function onDragStart(source, piece, position, orientation) {
+            // Don't allow moves if puzzle is solved
+            if (game.game_over()) return false;
+
+            // Only allow white pieces to be moved
+            if (piece.search(/^b/) !== -1) return false;
+        }
+
+        function onDrop(source, target) {
+            var move = game.move({
+                from: source,
+                to: target,
+                promotion: 'q' // Always promote to queen for simplicity
+            });
+
+            // Invalid move
+            if (move === null) return 'snapback';
+
+            // Check if this is the correct move in the solution sequence
+            var moveStr = source + target;
+
+            if (currentMoveIndex < solutionMoves.length && moveStr === solutionMoves[currentMoveIndex]) {
+                currentMoveIndex++;
+
+                // If not the last move, make a response move
+                if (currentMoveIndex < solutionMoves.length) {
+                    setTimeout(function() {
+                        // Make the opponent's response (part of the solution sequence)
+                        if (currentMoveIndex < solutionMoves.length) {
+                            var responseMove = solutionMoves[currentMoveIndex];
+                            game.move({
+                                from: responseMove.substring(0, 2),
+                                to: responseMove.substring(2, 4)
+                            });
+                            board.position(game.fen());
+                            currentMoveIndex++;
+
+                            // Check if puzzle is complete
+                            if (currentMoveIndex >= solutionMoves.length) {
+                                setTimeout(function() {
+                                    document.getElementById('clueContainer').classList.add('show');
+                                }, 500);
+                            }
+                        }
+                    }, 300);
+                } else {
+                    // Puzzle solved!
+                    setTimeout(function() {
+                        document.getElementById('clueContainer').classList.add('show');
+                    }, 500);
+                }
+            } else {
+                // Wrong move - reset
+                setTimeout(function() {
+                    resetPuzzle();
+                    alert('Not quite! Try again.');
+                }, 200);
+                return;
+            }
+        }
+
+        function onSnapEnd() {
+            board.position(game.fen());
+        }
+
+        var config = {
+            draggable: true,
+            position: puzzlePosition,
+            onDragStart: onDragStart,
+            onDrop: onDrop,
+            onSnapEnd: onSnapEnd,
+            pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+        };
+
+        board = Chessboard('board', config);
+
+        function resetPuzzle() {
+            game.load(puzzlePosition);
+            board.position(puzzlePosition);
+            currentMoveIndex = 0;
+            document.getElementById('clueContainer').classList.remove('show');
+        }
+
+        // Make board responsive
+        $(window).resize(function() {
+            board.resize();
+        });
+    </script>
+</body>
+</html>
