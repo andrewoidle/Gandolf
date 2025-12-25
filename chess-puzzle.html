@@ -209,9 +209,9 @@
         var board = null;
 
         // Advanced checkmate puzzle: White to move - Checkmate in 2!
-        // Classic rook sacrifice leading to bishop checkmate
-        var puzzlePosition = 'r5rk/5ppp/5R2/4B3/8/8/7P/7K w - - 0 1';
-        var solutionMoves = ['f6g6', 'f7g6', 'e5f6']; // Rg6+ (rook sacrifice), fxg6 (forced), Bf6# (checkmate!)
+        // Queen sacrifice leading to checkmate pattern
+        var puzzlePosition = '6k1/5Q1p/7P/8/8/8/5PPP/6K1 w - - 0 1';
+        var solutionMoves = ['f7f8', 'g8h7', 'f8g7']; // Qf8+ (check), Kh7 (forced), Qg7# (checkmate!)
         var currentMoveIndex = 0;
 
         // Set up the puzzle position
