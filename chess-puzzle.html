@@ -187,10 +187,10 @@
     <div class="container">
         <h1>🎄 Christmas Clue Quest 🎄</h1>
         <div class="puzzle-info">
-            <strong>White to move - Checkmate in 2!</strong>
+            <strong>White to move and win!</strong>
         </div>
         <div id="board"></div>
-        <div class="hint">Hint: Sometimes you must sacrifice to achieve victory...</div>
+        <div class="hint">Find the winning move...</div>
         <button class="reset-btn" onclick="resetPuzzle()">Reset Puzzle</button>
 
         <div id="clueContainer" class="clue-container">
@@ -208,10 +208,10 @@
         var game = new Chess();
         var board = null;
 
-        // Advanced checkmate puzzle: White to move - Checkmate in 2!
-        // Queen sacrifice leading to checkmate pattern
-        var puzzlePosition = '6k1/5Q1p/7P/8/8/8/5PPP/6K1 w - - 0 1';
-        var solutionMoves = ['f7f8', 'g8h7', 'f8g7']; // Qf8+ (check), Kh7 (forced), Qg7# (checkmate!)
+        // Intermediate chess puzzle: White to move and win (Fork tactic with Knight)
+        // This is a position where White can win material with a knight fork
+        var puzzlePosition = 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R w KQkq - 0 1';
+        var solutionMoves = ['f3g5', 'c6a5', 'g5e6']; // Knight to g5 (threatens f7 and attacks queen), then Ne6 winning the queen
         var currentMoveIndex = 0;
 
         // Set up the puzzle position
