@@ -247,16 +247,24 @@
                         // Make the opponent's response (part of the solution sequence)
                         if (currentMoveIndex < solutionMoves.length) {
                             var responseMove = solutionMoves[currentMoveIndex];
+                            console.log('Attempting automatic move:', responseMove);
+                            console.log('Current position:', game.fen());
+
                             var blackMove = game.move({
                                 from: responseMove.substring(0, 2),
-                                to: responseMove.substring(2, 4)
+                                to: responseMove.substring(2, 4),
+                                promotion: 'q'
                             });
 
                             if (blackMove === null) {
                                 console.error('Black response move failed:', responseMove);
+                                console.error('Current FEN:', game.fen());
+                                console.error('Legal moves:', game.moves());
+                                alert('Error: Automatic response move failed. Check console for details.');
                                 return;
                             }
 
+                            console.log('Black move successful:', blackMove);
                             board.position(game.fen());
                             currentMoveIndex++;
 
